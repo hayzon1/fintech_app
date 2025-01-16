@@ -1,7 +1,7 @@
 package com.fintech.config;
 
 import com.fintech.service.UserService;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
+//import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

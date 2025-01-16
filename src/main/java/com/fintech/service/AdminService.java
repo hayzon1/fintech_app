@@ -5,6 +5,7 @@ import com.fintech.dto.LoginRequest;
 import com.fintech.dto.ResponseDto;
 import com.fintech.dto.request.AdminAccountRequest;
 import com.fintech.dto.request.UpdateLoanStatusRequest;
+import com.fintech.dto.response.BvnValidationResponse;
 import com.fintech.exception.BadRequestException;
 import com.fintech.model.Admin;
 import com.fintech.model.Loan;
@@ -16,6 +17,7 @@ import com.fintech.repository.AdminRepository;
 import com.fintech.repository.LoanRepository;
 import com.fintech.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import com.fintech.dto.response.BvnValidationResponse;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -32,6 +35,7 @@ import static com.fintech.dto.ApiResponse.ok;
 
 @Service
 @RequiredArgsConstructor
+
 public class AdminService {
     private final UserAccountRepository userAccountRepository;
     private final AdminRepository adminRepository;
@@ -39,6 +43,7 @@ public class AdminService {
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final BvnValidationClient bvnValidationClient;
 
     public ResponseEntity<ResponseDto<Admin>> create(AdminAccountRequest request){
         Optional<Admin> adminOptional =adminRepository.findByEmail(request.getEmail());
@@ -78,12 +83,33 @@ public class AdminService {
             throw new BadRequestException("Admin not found");
         }
         UsersAccount usersAccount = usersAccountOptional.get();
+
+        // Validate BVN before verification
+        boolean isBvnValid = validateBvn(usersAccount.getBvn());
+        if (!isBvnValid) {
+            throw new BadRequestException("BVN validation failed");
+        }
+
         Admin admin = adminOptional.get();
         usersAccount.setVerified(true);
         usersAccount.setAccountStatus(AppStatus.COMPLETED);
         usersAccount.setVerifiedBy(admin);
         userAccountRepository.save(usersAccount);
         return ok(null, "User verified successfully");
+    }
+
+    private boolean validateBvn(String bvn) {
+        // Call third-party BVN validation service
+        try {
+            ResponseEntity<BvnValidationResponse> response = bvnValidationClient.validateBvn(bvn);
+            BvnValidationResponse bvnResponse = response.getBody();
+            if (bvnResponse == null || !bvnResponse.isValid()) {
+                throw new BadRequestException("Invalid BVN: " + (bvnResponse != null ? bvnResponse.getMessage() : "Unknown error"));
+            }
+            return true;
+        } catch (Exception e) {
+            throw new BadRequestException("BVN validation service failed: " + e.getMessage());
+        }
     }
 
     public ResponseEntity<ResponseDto<Loan>> updateLoanStatus(@RequestBody UpdateLoanStatusRequest request) {

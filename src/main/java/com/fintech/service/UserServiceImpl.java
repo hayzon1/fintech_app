@@ -4,6 +4,7 @@ import com.fintech.repository.AdminRepository;
 import com.fintech.repository.UserAccountRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
     private final UserAccountRepository userAccountRepository;
     private final AdminRepository adminRepository;
+    private final BVNValidationService bvnValidationService;
 
     @Override
     public UserDetailsService userDetailsService() {

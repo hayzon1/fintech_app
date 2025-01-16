@@ -8,6 +8,7 @@ import com.fintech.dto.request.UserAccountRequest;
 import com.fintech.exception.BadRequestException;
 import com.fintech.model.UsersAccount;
 import com.fintech.model.enums.AppStatus;
+import com.fintech.repository.AdminRepository;
 import com.fintech.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,8 @@ public class UsersAccountService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
+    private final BvnValidationClient bvnValidationClient;
+    private final AdminRepository adminRepository;
 
 
     public ResponseEntity<ResponseDto<UsersAccount>> create(UserAccountRequest request) {

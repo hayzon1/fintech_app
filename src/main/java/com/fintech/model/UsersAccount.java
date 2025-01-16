@@ -39,10 +39,13 @@ public class UsersAccount implements UserDetails {
     private String fullName;
     @Column(name = "date_of_birth")
     private String dateOfBirth;
-    @Column(name = "email")
+
+    @Column(name = "email", unique = true)
     private String email;
-    @Column(name = "phone_number")
+
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
+    
     @Column(name = "password")
     private String password;
     @Column(name = "address")
@@ -52,8 +55,11 @@ public class UsersAccount implements UserDetails {
     @Column(name = "account_balance")
     @Builder.Default
     private BigDecimal accountBalance = BigDecimal.ZERO;
-    @Column(name = "bvn")
+
+
+    @Column(name = "bvn", unique = true)
     private String bvn;
+
     @Column(name = "is_verified")
     private boolean isVerified = false;
     @Enumerated(EnumType.STRING)

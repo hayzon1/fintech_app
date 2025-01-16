@@ -1,6 +1,7 @@
 package com.fintech.dto.request;
 
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
